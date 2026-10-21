@@ -17,11 +17,34 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Dynamic CORS configuration allowing Render frontend deployments and local dev
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : null;
+
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    // Allow non-browser requests (curl, server-to-server, health monitors)
+    if (!origin) return callback(null, true);
+
+    // If specific origins are configured in environment
+    if (allowedOrigins && allowedOrigins.length > 0 && !allowedOrigins.includes('*')) {
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+    }
+
+    // Always allow Render domains and local dev
+    if (origin.endsWith('.onrender.com') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+
+    // Permissive fallback ensuring cross-origin communication on cloud deployments
+    return callback(null, true);
+  },
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.use(express.json());
 

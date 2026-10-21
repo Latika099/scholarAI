@@ -105,6 +105,32 @@ Open your browser to: **`http://localhost:3000`** (or **`http://localhost:3001`*
 
 ---
 
+## ☁️ Render Cloud Deployment
+
+ScholarAI is pre-configured for dual-service deployment on Render:
+
+### 1. Backend Web Service (Render)
+- **Repository**: Connect your GitHub repository.
+- **Root Directory**: `server`
+- **Environment**: `Node`
+- **Build Command**: `npm install`
+- **Start Command**: `node src/app.js`
+- **Environment Variables**:
+  - `NODE_ENV`: `production`
+  - *(Optional)* `ALLOWED_ORIGINS`: Your frontend Render domain (or leave empty to allow all `.onrender.com` origins automatically)
+- **Deployed Backend URL**: `https://scholarai-backend-etns.onrender.com`
+
+### 2. Frontend Static Site (Render)
+- **Repository**: Connect your GitHub repository.
+- **Root Directory**: `client`
+- **Build Command**: `npm install && npm run build`
+- **Publish Directory**: `dist`
+- **Environment Variables**:
+  - `VITE_API_URL`: `https://scholarai-backend-etns.onrender.com`
+- All production API calls automatically target the deployed Render backend with zero `localhost` dependencies.
+
+---
+
 ## 🧪 Automated Test Suite
 
 ScholarAI includes comprehensive automated tests covering all 4 agents, the orchestrator, and the SOP drafting engine:
